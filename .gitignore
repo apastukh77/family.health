@@ -1,0 +1,22 @@
+# Ваши личные файлы (скрываем от Git)
+1.txt
+user.txt
+telegram_config.txt
+
+# Node & Build
+node_modules
+dist
+build
+.next
+.cache
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# System files
+.DS_Store
+__pycache__
+*.log
+*.pyc
