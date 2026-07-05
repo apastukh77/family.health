@@ -11,7 +11,7 @@ const STATUS_COLORS = {
   cancelled: "bg-[#5C6656]/15 text-[#5C6656]",
 };
 
-const emptyService = { name_en: "", name_uk: "", description_en: "", description_uk: "", duration: 60, price: "", image_url: "", category: "massage" };
+const emptyService = { name_en: "", name_uk: "", name_ro: "", description_en: "", description_uk: "", description_ro: "", duration: "60", price: "", image_url: "", category: "massage" };
 
 export default function AdminDashboard() {
   const { user, logout } = useAuth();
@@ -37,39 +37,51 @@ export default function AdminDashboard() {
   const updateStatus = async (id, status) => {
     await api.patch(`/bookings/${id}`, { status });
     loadAll();
-    toast.success("Updated");
+    toast.success(t("status_updated"));
   };
 
   const delBooking = async (id) => {
     await api.delete(`/bookings/${id}`);
     loadAll();
-    toast.success("Deleted");
+    toast.success(t("deleted"));
   };
 
   const saveService = async (e) => {
     e.preventDefault();
-    const payload = { ...editing, duration: Number(editing.duration), price: editing.price, active: true };
+    // Очищаем данные: если поле пустое, отправляем null или пустую строку, 
+    // чтобы бэкенд не ругался на отсутствие данных, но принимал хотя бы одно имя
+    const payload = { 
+      ...editing, 
+      name_en: editing.name_en || "",
+      name_uk: editing.name_uk || "",
+      name_ro: editing.name_ro || "",
+      duration: String(editing.duration), 
+      price: String(editing.price), 
+      active: true 
+    };
+    
     if (editing.id) await api.put(`/services/${editing.id}`, payload);
     else await api.post("/services", payload);
+    
     setShowForm(false); setEditing(null);
     loadAll();
-    toast.success("Saved");
+    toast.success(t("saved"));
   };
 
   const delService = async (id) => {
     await api.delete(`/services/${id}`);
     loadAll();
-    toast.success("Deleted");
+    toast.success(t("deleted"));
   };
 
   const changePassword = async () => {
     try {
       await api.post("/auth/change-password", passwords);
-      toast.success("Password updated");
+      toast.success(t("password_updated"));
       setShowPasswordModal(false);
       setPasswords({ old: "", new: "" });
     } catch {
-      toast.error("Failed to change password");
+      toast.error(t("failed_to_change_password"));
     }
   };
 
@@ -97,7 +109,7 @@ export default function AdminDashboard() {
               <option value="uk">UK</option>
             </select>
             <button onClick={() => setShowPasswordModal(true)} className="flex items-center gap-1.5 text-sm bg-white/10 hover:bg-white/20 rounded-full px-4 py-2 transition-colors">
-              <Key size={14} /> Password
+              <Key size={14} /> {t("admin_password")}
             </button>
             <button onClick={logout} className="flex items-center gap-2 text-sm bg-[#C17767] hover:bg-[#A85A4D] rounded-full px-4 py-2 transition-colors">
               <LogOut size={16} /> {t("admin_logout")}
@@ -130,12 +142,12 @@ export default function AdminDashboard() {
             <table className="w-full text-sm">
               <thead className="bg-[#E7E0D3] text-[#5C6656]">
                 <tr>
-                  <th className="text-left px-5 py-3">Name</th>
-                  <th className="text-left px-5 py-3">Phone</th>
-                  <th className="text-left px-5 py-3">Service</th>
-                  <th className="text-left px-5 py-3">Date</th>
-                  <th className="text-left px-5 py-3">Status</th>
-                  <th className="text-right px-5 py-3">Actions</th>
+                  <th className="text-left px-5 py-3">{t("admin_name")}</th>
+                  <th className="text-left px-5 py-3">{t("admin_phone")}</th>
+                  <th className="text-left px-5 py-3">{t("admin_service")}</th>
+                  <th className="text-left px-5 py-3">{t("admin_date")}</th>
+                  <th className="text-left px-5 py-3">{t("admin_status")}</th>
+                  <th className="text-right px-5 py-3">{t("admin_actions")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -147,9 +159,9 @@ export default function AdminDashboard() {
                     <td className="px-5 py-3">{b.date}</td>
                     <td className="px-5 py-3">
                       <select value={b.status} onChange={(e) => updateStatus(b.id, e.target.value)} className="bg-white border rounded px-2 py-1">
-                        <option value="pending">pending</option>
-                        <option value="confirmed">confirmed</option>
-                        <option value="cancelled">cancelled</option>
+                        <option value="pending">{t("status_pending")}</option>
+                        <option value="confirmed">{t("status_confirmed")}</option>
+                        <option value="cancelled">{t("status_cancelled")}</option>
                       </select>
                     </td>
                     <td className="px-5 py-3 text-right">
@@ -166,14 +178,14 @@ export default function AdminDashboard() {
           <div>
             <div className="flex justify-end mb-5">
               <button onClick={() => { setEditing({ ...emptyService }); setShowForm(true); }} className="flex items-center gap-2 bg-[#4A5D4E] text-white rounded-full px-5 py-2.5 text-sm font-semibold">
-                <Plus size={16} /> Add Service
+                <Plus size={16} /> {t("admin_add_service")}
               </button>
             </div>
             <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {services.map((s) => (
                 <div key={s.id} className="bg-[#F0EBE1] border border-[#E2DACD] rounded-2xl p-5">
                   <div className="flex justify-between items-start">
-                    <h4 className="font-serif text-xl">{s.name_en}</h4>
+                    <h4 className="font-serif text-xl">{lang === 'uk' ? s.name_uk : lang === 'ro' ? s.name_ro : s.name_en}</h4>
                     <div className="flex gap-1">
                       <button onClick={() => { setEditing(s); setShowForm(true); }}><Pencil size={15} /></button>
                       <button onClick={() => delService(s.id)} className="text-[#A85A4D]"><Trash2 size={15} /></button>
@@ -191,16 +203,17 @@ export default function AdminDashboard() {
         <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
           <form onSubmit={saveService} className="bg-[#FAF8F5] rounded-3xl w-full max-w-lg p-7">
             <div className="flex justify-between items-center mb-5">
-              <h3 className="text-2xl">Service</h3>
+              <h3 className="text-2xl">{editing.id ? t("admin_edit_service") : t("admin_add_service")}</h3>
               <button type="button" onClick={() => setShowForm(false)}><X size={22} /></button>
             </div>
             <div className="space-y-4">
-              <input placeholder="Name (EN)" className={inputCls} value={editing.name_en} onChange={(e) => setEditing({...editing, name_en: e.target.value})} required />
-              <input placeholder="Name (UA)" className={inputCls} value={editing.name_uk} onChange={(e) => setEditing({...editing, name_uk: e.target.value})} required />
-              <input type="number" placeholder="Duration (min)" className={inputCls} value={editing.duration} onChange={(e) => setEditing({...editing, duration: e.target.value})} />
-              <input type="text" placeholder="Price (e.g. 150/170)" className={inputCls} value={editing.price} onChange={(e) => setEditing({...editing, price: e.target.value})} />
+              <input placeholder={t("name_en")} className={inputCls} value={editing.name_en || ""} onChange={(e) => setEditing({...editing, name_en: e.target.value})} />
+              <input placeholder={t("name_uk")} className={inputCls} value={editing.name_uk || ""} onChange={(e) => setEditing({...editing, name_uk: e.target.value})} />
+              <input placeholder={t("name_ro")} className={inputCls} value={editing.name_ro || ""} onChange={(e) => setEditing({...editing, name_ro: e.target.value})} />
+              <input type="text" placeholder={t("duration_min")} className={inputCls} value={editing.duration || ""} onChange={(e) => setEditing({...editing, duration: String(e.target.value)})} />
+              <input type="text" placeholder={t("price")} className={inputCls} value={editing.price || ""} onChange={(e) => setEditing({...editing, price: String(e.target.value)})} />
             </div>
-            <button type="submit" className="w-full mt-6 bg-[#4A5D4E] text-white rounded-full py-3">Save</button>
+            <button type="submit" className="w-full mt-6 bg-[#4A5D4E] text-white rounded-full py-3">{t("admin_save")}</button>
           </form>
         </div>
       )}
@@ -208,22 +221,22 @@ export default function AdminDashboard() {
       {showPasswordModal && (
         <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
           <div className="bg-[#FAF8F5] rounded-3xl w-full max-w-sm p-7">
-            <h3 className="font-serif text-xl mb-4">Change Password</h3>
+            <h3 className="font-serif text-xl mb-4">{t("admin_change_password")}</h3>
             <div className="relative mb-3">
-              <input type={showPass ? "text" : "password"} placeholder="Old Password" className={inputCls} onChange={(e) => setPasswords({...passwords, old: e.target.value})} />
+              <input type={showPass ? "text" : "password"} placeholder={t("old_password")} className={inputCls} onChange={(e) => setPasswords({...passwords, old: e.target.value})} />
               <button type="button" onClick={() => setShowPass(!showPass)} className="absolute right-3 top-2.5 text-[#5C6656] hover:text-[#2C3D30]">
                 {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
             <div className="relative mb-4">
-              <input type={showPass ? "text" : "password"} placeholder="New Password" className={inputCls} onChange={(e) => setPasswords({...passwords, new: e.target.value})} />
+              <input type={showPass ? "text" : "password"} placeholder={t("new_password")} className={inputCls} onChange={(e) => setPasswords({...passwords, new: e.target.value})} />
               <button type="button" onClick={() => setShowPass(!showPass)} className="absolute right-3 top-2.5 text-[#5C6656] hover:text-[#2C3D30]">
                 {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
             <div className="flex gap-3">
-              <button onClick={() => setShowPasswordModal(false)} className="flex-1 py-2 rounded-full border">Cancel</button>
-              <button onClick={changePassword} className="flex-1 py-2 rounded-full bg-[#4A5D4E] text-white">Save</button>
+              <button onClick={() => setShowPasswordModal(false)} className="flex-1 py-2 rounded-full border">{t("admin_cancel")}</button>
+              <button onClick={changePassword} className="flex-1 py-2 rounded-full bg-[#4A5D4E] text-white">{t("admin_save")}</button>
             </div>
           </div>
         </div>
