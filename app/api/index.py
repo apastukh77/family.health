@@ -1,9 +1,11 @@
-
 import sys
 import os
 
-# Добавляем путь к папке backend, чтобы Python нашел server.py
-sys.path.append(os.path.join(os.getcwd(), 'backend'))
+# Добавляем корень проекта в пути поиска, чтобы можно было импортировать папку app
+sys.path.append(os.getcwd())
 
-from server import app
-app = app
+# Теперь импортируем ваше приложение из папки app
+from app.server import app as application
+
+# Vercel ожидает, что переменная будет называться именно так (или перенаправляем)
+app = application
