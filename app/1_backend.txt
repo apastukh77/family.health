@@ -1,0 +1,35 @@
+
+D:\PROJECTS\Family_Health\family.health>cd app/backend
+
+D:\PROJECTS\Family_Health\family.health\app\backend>py -m pip install -r requirements.txt
+
+-------------------------
+ЗАПУСК BACKEND
+В директории D:\PROJECTS\Family_Health\family.health\app>cd backend  выполнить
+
+py -m uvicorn server:app --reload --port 8000
+
+
+--------------------------------
+
+D:\PROJECTS\Family_Health\family.health\app\backend>py -m uvicorn server:app --reload --port 8000
+INFO:     Will watch for changes in these directories: ['D:\\PROJECTS\\Family_Health\\family.health\\app\\backend']
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [22040] using StatReload
+INFO:     Started server process [18864]
+INFO:     Waiting for application startup.
+2026-07-02 10:32:54,413 - server - INFO - Seeded admin user
+2026-07-02 10:32:54,602 - server - INFO - Seeded default services
+INFO:     Application startup complete.
+---------------------
+
+
+http://localhost:8000/docs  интерактивная документация API (Swagger)
+
+-----------------------------
+
+
+запуск проекта фронт:
+npm start
+
+
