@@ -18,7 +18,23 @@ export default function Home() {
   const [services, setServices] = useState([]);
 
   useEffect(() => {
-    api.get("/services").then((r) => setServices(r.data.slice(0, 3))).catch(() => {});
+    api
+      .get("/services")
+      .then((r) => {
+        const data = r.data;
+        // Защита: проверяем, массив ли это. Если ответ объекта — ищем вложенный массив.
+        if (Array.isArray(data)) {
+          setServices(data.slice(0, 3));
+        } else if (data && typeof data === 'object' && Array.isArray(data.services)) {
+          setServices(data.services.slice(0, 3));
+        } else {
+          setServices([]);
+        }
+      })
+      .catch((err) => {
+        console.error("Ошибка API:", err);
+        setServices([]);
+      });
   }, []);
 
   const reasons = [
@@ -32,14 +48,20 @@ export default function Home() {
       {/* HERO */}
       <section className="relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-6 sm:px-10 pt-16 pb-20 lg:pt-24 lg:pb-28 grid lg:grid-cols-2 gap-14 items-center">
-          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7 }}
+          >
             <span className="inline-block text-xs font-semibold tracking-[0.18em] uppercase text-[#C17767] mb-5">
               {t("hero_eyebrow")}
             </span>
             <h1 className="font-serif text-5xl sm:text-6xl lg:text-7xl font-medium leading-[1.05] text-[#2C3D30] tracking-tight">
               {t("hero_title")}
             </h1>
-            <p className="mt-6 text-lg text-[#5C6656] leading-relaxed max-w-xl">{t("hero_sub")}</p>
+            <p className="mt-6 text-lg text-[#5C6656] leading-relaxed max-w-xl">
+              {t("hero_sub")}
+            </p>
             <div className="mt-9 flex flex-wrap gap-4">
               <Link
                 to="/booking"
@@ -85,41 +107,22 @@ export default function Home() {
           <h2 className="font-serif text-4xl sm:text-5xl font-medium text-[#2C3D30] tracking-tight">{t("services_title")}</h2>
           <p className="mt-4 text-lg text-[#5C6656]">{t("services_sub")}</p>
         </motion.div>
-        
-        {/* Сетка только с карточками услуг */}
+
         <div className="grid gap-8 md:grid-cols-3 items-stretch">
-          {services.map((s, i) => (
-            <ServiceCard key={s.id} service={s} index={i} />
-          ))}
+          {Array.isArray(services) && services.length > 0 ? (
+            services.map((s, i) => <ServiceCard key={s.id || i} service={s} index={i} />)
+          ) : (
+            <p className="col-span-3 text-center text-[#5C6656]">Услуги временно недоступны.</p>
+          )}
         </div>
 
-        {/* Полноширинный интерактивный премиум-баннер с видео под сеткой */}
-        <motion.div 
-          {...fade}
-          transition={{ duration: 0.8, delay: 0.1 }}
-          className="relative overflow-hidden rounded-[2.5rem] shadow-md h-[280px] sm:h-[360px] w-full flex flex-col justify-center items-center p-8 group cursor-pointer border border-[#E2DACD]/50 mt-12"
-        >
-          {/* Фоновое видео */}
-          <video
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 ease-out group-hover:scale-103"
-          >
+        <motion.div {...fade} transition={{ duration: 0.8, delay: 0.1 }} className="relative overflow-hidden rounded-[2.5rem] shadow-md h-[280px] sm:h-[360px] w-full flex flex-col justify-center items-center p-8 group cursor-pointer border border-[#E2DACD]/50 mt-12">
+          <video autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 ease-out group-hover:scale-103">
             <source src="/videos/Give_love_and_care_to_your_body.mp4" type="video/mp4" />
           </video>
-
-          {/* Затемняющий оверлей с мягким размытием для идеальной глубины и читаемости */}
           <div className="absolute inset-0 bg-black/35 backdrop-blur-[0.5px] transition-colors duration-500 group-hover:bg-black/45" />
-
-          {/* Текст и изящная стеклянная кнопка */}
           <div className="relative z-10 w-full max-w-xs sm:max-w-md text-center px-4">
-            <Link 
-              to="/services" 
-              data-testid="home-view-all-services" 
-              className="inline-flex items-center justify-center gap-3 w-full bg-white/10 backdrop-blur-md text-white border border-white/30 rounded-full px-8 py-4 font-semibold text-sm uppercase tracking-[0.2em] transition-all duration-300 hover:bg-white hover:text-[#2C3D30] hover:border-white shadow-[inset_0_1px_12px_rgba(255,255,255,0.15)] hover:shadow-xl hover:scale-102"
-            >
+            <Link to="/services" data-testid="home-view-all-services" className="inline-flex items-center justify-center gap-3 w-full bg-white/10 backdrop-blur-md text-white border border-white/30 rounded-full px-8 py-4 font-semibold text-sm uppercase tracking-[0.2em] transition-all duration-300 hover:bg-white hover:text-[#2C3D30] hover:border-white shadow-[inset_0_1px_12px_rgba(255,255,255,0.15)] hover:shadow-xl hover:scale-102">
               <span>{t("services_view_all")}</span>
               <ArrowRight size={16} className="transition-transform duration-300 group-hover:translate-x-1.5" />
             </Link>
@@ -130,15 +133,11 @@ export default function Home() {
       {/* WHY */}
       <section className="bg-[#F0EBE1] border-y border-[#E2DACD]">
         <div className="max-w-7xl mx-auto px-6 sm:px-10 py-20 sm:py-28">
-          <motion.h2 {...fade} transition={{ duration: 0.6 }} className="font-serif text-4xl sm:text-5xl font-medium text-[#2C3D30] tracking-tight text-center mb-16">
-            {t("why_title")}
-          </motion.h2>
+          <motion.h2 {...fade} transition={{ duration: 0.6 }} className="font-serif text-4xl sm:text-5xl font-medium text-[#2C3D30] tracking-tight text-center mb-16">{t("why_title")}</motion.h2>
           <div className="grid gap-10 md:grid-cols-3">
             {reasons.map((r, i) => (
               <motion.div key={i} {...fade} transition={{ duration: 0.5, delay: i * 0.1 }} className="text-center">
-                <div className="w-16 h-16 mx-auto rounded-full bg-[#4A5D4E] text-[#FAF8F5] flex items-center justify-center mb-5">
-                  <r.icon size={26} />
-                </div>
+                <div className="w-16 h-16 mx-auto rounded-full bg-[#4A5D4E] text-[#FAF8F5] flex items-center justify-center mb-5"><r.icon size={26} /></div>
                 <h3 className="font-serif text-2xl text-[#2C3D30] mb-2">{r.title}</h3>
                 <p className="text-[#5C6656] leading-relaxed">{r.text}</p>
               </motion.div>
@@ -152,11 +151,7 @@ export default function Home() {
         <motion.div {...fade} transition={{ duration: 0.6 }} className="bg-[#4A5D4E] rounded-[2.5rem] px-8 sm:px-16 py-16 text-center">
           <h2 className="font-serif text-4xl sm:text-5xl font-medium text-[#FAF8F5] tracking-tight">{t("hero_cta")}</h2>
           <p className="mt-4 text-[#D6DDD2] max-w-xl mx-auto">{t("hero_sub")}</p>
-          <Link
-            to="/booking"
-            data-testid="cta-book-button"
-            className="inline-flex items-center gap-2 mt-8 bg-[#FAF8F5] text-[#2C3D30] hover:bg-white rounded-full px-8 py-4 font-semibold transition-colors"
-          >
+          <Link to="/booking" data-testid="cta-book-button" className="inline-flex items-center gap-2 mt-8 bg-[#FAF8F5] text-[#2C3D30] hover:bg-white rounded-full px-8 py-4 font-semibold transition-colors">
             {t("nav_book")} <ArrowRight size={18} />
           </Link>
         </motion.div>

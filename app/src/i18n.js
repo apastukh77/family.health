@@ -98,7 +98,7 @@ export const translations = {
     services_book_btn: "Book an Appointment",
 
     services_min_short: "min",
-    currency: "lei",
+    currency: "RON",
     services_cert_block_title: "Certificates",
     services_cert_subtitle: "A gift everyone will truly appreciate!",
     services_cert_block_desc:
@@ -368,7 +368,7 @@ export const translations = {
     services_book_btn: "Programează o procedură",
 
     services_min_short: "min",
-    currency: "lei",
+    currency: "RON",
     services_cert_block_title: "Certificate",
     services_cert_subtitle: "Un cadou pe care îl va aprecia oricine!",
     services_cert_block_desc:
