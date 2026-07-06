@@ -48,6 +48,7 @@ npm start
 Хранение видео и фото
 
 Cloudinary
+pip install cloudinary
 
 https://console.cloudinary.com/
 
