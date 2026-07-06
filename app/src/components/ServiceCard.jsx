@@ -2,12 +2,23 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Clock } from "lucide-react";
-import { useLang, serviceName, serviceDesc } from "../i18n";
+import { useLang } from "../i18n";
 
 export const ServiceCard = ({ service, index = 0 }) => {
   const { t, lang } = useLang();
-  const name = lang === "uk" ? service.name_uk : service.name_en;
-  const desc = lang === "uk" ? service.description_uk : service.description_en;
+
+  const name =
+    lang === "uk"
+      ? service.name_uk
+      : lang === "ro"
+        ? service.name_ro
+        : service.name_en;
+  const desc =
+    lang === "uk"
+      ? service.description_uk
+      : lang === "ro"
+        ? service.description_ro
+        : service.description_en;
 
   return (
     <motion.div
@@ -18,7 +29,20 @@ export const ServiceCard = ({ service, index = 0 }) => {
       data-testid={`service-card-${service.id}`}
       className="bg-[#F0EBE1] rounded-3xl border border-[#E2DACD] overflow-hidden shadow-[0_8px_30px_rgba(44,61,48,0.03)] hover:-translate-y-1 hover:shadow-[0_12px_40px_rgba(44,61,48,0.08)] transition-all duration-300 flex flex-col"
     >
-      {service.image_url && (
+      {service.image_url && service.image_url.endsWith(".mp4") && (
+        <div className="h-52 overflow-hidden">
+          <video
+            src={service.image_url}
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
+          />
+        </div>
+      )}
+
+      {service.image_url && !service.image_url.endsWith(".mp4") && (
         <div className="h-52 overflow-hidden">
           <img
             src={service.image_url}
@@ -27,6 +51,7 @@ export const ServiceCard = ({ service, index = 0 }) => {
           />
         </div>
       )}
+
       <div className="p-7 flex flex-col flex-1">
         <h3 className="font-serif text-2xl text-[#2C3D30] mb-2">{name}</h3>
         <p className="text-[#5C6656] text-sm leading-relaxed flex-1">{desc}</p>
@@ -34,7 +59,10 @@ export const ServiceCard = ({ service, index = 0 }) => {
           <span className="flex items-center gap-1.5 text-sm text-[#5C6656]">
             <Clock size={15} /> {service.duration} {t("min")}
           </span>
-          <span className="font-serif text-2xl text-[#4A5D4E]">€{service.price}</span>
+          <span className="font-serif text-2xl text-[#4A5D4E]">
+            {service.price}
+            <span className="text-lg ml-1">{t("currency")}</span>
+          </span>
         </div>
         <Link
           to={`/booking?service=${service.id}`}

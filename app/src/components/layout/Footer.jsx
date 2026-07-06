@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Leaf, Phone, MapPin, Clock, Facebook, Instagram, Send } from "lucide-react";
+import { Leaf, Phone, MapPin, Clock, Facebook, Instagram, Send, Mail } from "lucide-react";
 import { useLang } from "../../i18n";
 import { 
   PHONES_DISPLAY, 
@@ -12,6 +12,15 @@ import {
 
 export const Footer = () => {
   const { t } = useLang();
+
+  // Функция для плавной прокрутки страницы к началу
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+  };
+
   return (
     <footer data-testid="site-footer" className="bg-[#2C3D30] text-[#E2DACD]">
       <div className="max-w-7xl mx-auto px-6 sm:px-10 py-16 grid gap-12 md:grid-cols-3">
@@ -33,7 +42,7 @@ export const Footer = () => {
             </p>
           </div>
 
-          {/* Блок социальных сетей строго по твоим константам */}
+          {/* Блок социальных сетей */}
           <div className="mt-6 pt-2">
             <p className="text-xs uppercase tracking-widest text-[#B9C2B3]/60 mb-3">
               {t("footer_follow_us") || "Follow us:"}
@@ -77,26 +86,28 @@ export const Footer = () => {
           </h4>
           <ul className="space-y-2 text-sm">
             <li>
-              <Link to="/" className="hover:text-white transition-colors">
+              <Link to="/" onClick={scrollToTop} className="hover:text-white transition-colors">
                 {t("nav_home")}
               </Link>
             </li>
             <li>
               <Link
                 to="/services"
+                onClick={scrollToTop}
                 className="hover:text-white transition-colors"
               >
                 {t("nav_services")}
               </Link>
             </li>
             <li>
-              <Link to="/about" className="hover:text-white transition-colors">
+              <Link to="/about" onClick={scrollToTop} className="hover:text-white transition-colors">
                 {t("nav_about")}
               </Link>
             </li>
             <li>
               <Link
                 to="/booking"
+                onClick={scrollToTop}
                 className="hover:text-white transition-colors"
               >
                 {t("nav_book")}
@@ -121,6 +132,15 @@ export const Footer = () => {
               </a>
             </li>
             <li className="flex items-start gap-2">
+              <Mail size={16} className="mt-0.5" />
+              <a
+                href="mailto:pastukh180587@gmail.com"
+                className="hover:text-white transition-colors"
+              >
+                pastukh180587@gmail.com
+              </a>
+            </li>
+            <li className="flex items-start gap-2">
               <MapPin size={16} className="mt-0.5" />
               {t("contact_address_val")}
             </li>
@@ -140,6 +160,7 @@ export const Footer = () => {
           </span>
           <Link
             to="/admin"
+            onClick={scrollToTop}
             className="hover:text-white transition-colors"
             data-testid="footer-admin-link"
           >

@@ -24,9 +24,13 @@ export default function Home() {
         const data = r.data;
         // Защита: проверяем, массив ли это. Если ответ объекта — ищем вложенный массив.
         if (Array.isArray(data)) {
-          setServices(data.slice(0, 3));
-        } else if (data && typeof data === 'object' && Array.isArray(data.services)) {
-          setServices(data.services.slice(0, 3));
+          setServices(data);
+        } else if (
+          data &&
+          typeof data === "object" &&
+          Array.isArray(data.services)
+        ) {
+          setServices(data.services);
         } else {
           setServices([]);
         }
@@ -93,7 +97,9 @@ export default function Home() {
             />
             <div className="absolute -bottom-6 -left-6 bg-[#FAF8F5] border border-[#E2DACD] rounded-3xl px-7 py-5 shadow-lg hidden sm:block">
               <p className="font-serif text-3xl text-[#4A5D4E]">8+</p>
-              <p className="text-xs text-[#5C6656] tracking-wide">{t("about_stat_1")}</p>
+              <p className="text-xs text-[#5C6656] tracking-wide">
+                {t("about_stat_1")}
+              </p>
             </div>
           </motion.div>
         </div>
@@ -103,28 +109,58 @@ export default function Home() {
 
       {/* SERVICES */}
       <section className="max-w-7xl mx-auto px-6 sm:px-10 py-20 sm:py-28">
-        <motion.div {...fade} transition={{ duration: 0.6 }} className="max-w-2xl mb-14">
-          <h2 className="font-serif text-4xl sm:text-5xl font-medium text-[#2C3D30] tracking-tight">{t("services_title")}</h2>
+        <motion.div
+          {...fade}
+          transition={{ duration: 0.6 }}
+          className="max-w-2xl mb-14"
+        >
+          <h2 className="font-serif text-4xl sm:text-5xl font-medium text-[#2C3D30] tracking-tight">
+            {t("services_title")}
+          </h2>
           <p className="mt-4 text-lg text-[#5C6656]">{t("services_sub")}</p>
         </motion.div>
 
         <div className="grid gap-8 md:grid-cols-3 items-stretch">
           {Array.isArray(services) && services.length > 0 ? (
-            services.map((s, i) => <ServiceCard key={s.id || i} service={s} index={i} />)
+            services.map((s, i) => (
+              <ServiceCard key={s.id || i} service={s} index={i} />
+            ))
           ) : (
-            <p className="col-span-3 text-center text-[#5C6656]">Услуги временно недоступны.</p>
+            <p className="col-span-3 text-center text-[#5C6656]">
+              {t("services_unavailable")}
+            </p>
           )}
         </div>
 
-        <motion.div {...fade} transition={{ duration: 0.8, delay: 0.1 }} className="relative overflow-hidden rounded-[2.5rem] shadow-md h-[280px] sm:h-[360px] w-full flex flex-col justify-center items-center p-8 group cursor-pointer border border-[#E2DACD]/50 mt-12">
-          <video autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 ease-out group-hover:scale-103">
-            <source src="/videos/Give_love_and_care_to_your_body.mp4" type="video/mp4" />
+        <motion.div
+          {...fade}
+          transition={{ duration: 0.8, delay: 0.1 }}
+          className="relative overflow-hidden rounded-[2.5rem] shadow-md h-[280px] sm:h-[360px] w-full flex flex-col justify-center items-center p-8 group cursor-pointer border border-[#E2DACD]/50 mt-12"
+        >
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 ease-out group-hover:scale-103"
+          >
+            <source
+              src="/videos/Give_love_and_care_to_your_body.mp4"
+              type="video/mp4"
+            />
           </video>
           <div className="absolute inset-0 bg-black/35 backdrop-blur-[0.5px] transition-colors duration-500 group-hover:bg-black/45" />
           <div className="relative z-10 w-full max-w-xs sm:max-w-md text-center px-4">
-            <Link to="/services" data-testid="home-view-all-services" className="inline-flex items-center justify-center gap-3 w-full bg-white/10 backdrop-blur-md text-white border border-white/30 rounded-full px-8 py-4 font-semibold text-sm uppercase tracking-[0.2em] transition-all duration-300 hover:bg-white hover:text-[#2C3D30] hover:border-white shadow-[inset_0_1px_12px_rgba(255,255,255,0.15)] hover:shadow-xl hover:scale-102">
+            <Link
+              to="/services"
+              data-testid="home-view-all-services"
+              className="inline-flex items-center justify-center gap-3 w-full bg-white/10 backdrop-blur-md text-white border border-white/30 rounded-full px-8 py-4 font-semibold text-sm uppercase tracking-[0.2em] transition-all duration-300 hover:bg-white hover:text-[#2C3D30] hover:border-white shadow-[inset_0_1px_12px_rgba(255,255,255,0.15)] hover:shadow-xl hover:scale-102"
+            >
               <span>{t("services_view_all")}</span>
-              <ArrowRight size={16} className="transition-transform duration-300 group-hover:translate-x-1.5" />
+              <ArrowRight
+                size={16}
+                className="transition-transform duration-300 group-hover:translate-x-1.5"
+              />
             </Link>
           </div>
         </motion.div>
@@ -133,12 +169,27 @@ export default function Home() {
       {/* WHY */}
       <section className="bg-[#F0EBE1] border-y border-[#E2DACD]">
         <div className="max-w-7xl mx-auto px-6 sm:px-10 py-20 sm:py-28">
-          <motion.h2 {...fade} transition={{ duration: 0.6 }} className="font-serif text-4xl sm:text-5xl font-medium text-[#2C3D30] tracking-tight text-center mb-16">{t("why_title")}</motion.h2>
+          <motion.h2
+            {...fade}
+            transition={{ duration: 0.6 }}
+            className="font-serif text-4xl sm:text-5xl font-medium text-[#2C3D30] tracking-tight text-center mb-16"
+          >
+            {t("why_title")}
+          </motion.h2>
           <div className="grid gap-10 md:grid-cols-3">
             {reasons.map((r, i) => (
-              <motion.div key={i} {...fade} transition={{ duration: 0.5, delay: i * 0.1 }} className="text-center">
-                <div className="w-16 h-16 mx-auto rounded-full bg-[#4A5D4E] text-[#FAF8F5] flex items-center justify-center mb-5"><r.icon size={26} /></div>
-                <h3 className="font-serif text-2xl text-[#2C3D30] mb-2">{r.title}</h3>
+              <motion.div
+                key={i}
+                {...fade}
+                transition={{ duration: 0.5, delay: i * 0.1 }}
+                className="text-center"
+              >
+                <div className="w-16 h-16 mx-auto rounded-full bg-[#4A5D4E] text-[#FAF8F5] flex items-center justify-center mb-5">
+                  <r.icon size={26} />
+                </div>
+                <h3 className="font-serif text-2xl text-[#2C3D30] mb-2">
+                  {r.title}
+                </h3>
                 <p className="text-[#5C6656] leading-relaxed">{r.text}</p>
               </motion.div>
             ))}
@@ -148,10 +199,22 @@ export default function Home() {
 
       {/* CTA */}
       <section className="max-w-7xl mx-auto px-6 sm:px-10 py-20 sm:py-28">
-        <motion.div {...fade} transition={{ duration: 0.6 }} className="bg-[#4A5D4E] rounded-[2.5rem] px-8 sm:px-16 py-16 text-center">
-          <h2 className="font-serif text-4xl sm:text-5xl font-medium text-[#FAF8F5] tracking-tight">{t("hero_cta")}</h2>
-          <p className="mt-4 text-[#D6DDD2] max-w-xl mx-auto">{t("hero_sub")}</p>
-          <Link to="/booking" data-testid="cta-book-button" className="inline-flex items-center gap-2 mt-8 bg-[#FAF8F5] text-[#2C3D30] hover:bg-white rounded-full px-8 py-4 font-semibold transition-colors">
+        <motion.div
+          {...fade}
+          transition={{ duration: 0.6 }}
+          className="bg-[#4A5D4E] rounded-[2.5rem] px-8 sm:px-16 py-16 text-center"
+        >
+          <h2 className="font-serif text-4xl sm:text-5xl font-medium text-[#FAF8F5] tracking-tight">
+            {t("hero_cta")}
+          </h2>
+          <p className="mt-4 text-[#D6DDD2] max-w-xl mx-auto">
+            {t("hero_sub")}
+          </p>
+          <Link
+            to="/booking"
+            data-testid="cta-book-button"
+            className="inline-flex items-center gap-2 mt-8 bg-[#FAF8F5] text-[#2C3D30] hover:bg-white rounded-full px-8 py-4 font-semibold transition-colors"
+          >
             {t("nav_book")} <ArrowRight size={18} />
           </Link>
         </motion.div>

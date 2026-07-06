@@ -96,6 +96,7 @@ export const translations = {
     services_tab_hardware: "Hardware Treatments",
     services_tab_combo: "Combined Packages",
     services_book_btn: "Book an Appointment",
+    services_unavailable: "Services are temporarily unavailable.",
 
     services_min_short: "min",
     currency: "RON",
@@ -146,7 +147,10 @@ export const translations = {
     name_uk: "Name (UK)",
     name_ro: "Name (RO)",
     price: "Price (RON)",
-    duration_min:"Duration (min)",
+    duration_min: "Duration (min)",
+    status_pending: "Pending",
+    status_confirmed: "Confirmed",
+    status_cancelled: "Cancelled",
   },
   uk: {
     brand: "Family Health",
@@ -243,6 +247,7 @@ export const translations = {
     services_tab_hardware: "Апаратні",
     services_tab_combo: "Комплекси",
     services_book_btn: "Записатися на процедуру",
+    services_unavailable: "Послуги тимчасово недоступні.",
 
     // Нові ключі для української версії
     services_min_short: "хв",
@@ -294,7 +299,10 @@ export const translations = {
     name_uk: "Назва (UK)",
     name_ro: "Назва (RO)",
     price: "Ціна (лей)",
-    duration_min:"Тривалість (хв)",
+    duration_min: "Тривалість (хв)",
+    status_pending: "В очікуванні",
+    status_confirmed: "Підтверджено",
+    status_cancelled: "Скасовано",
   },
 
   ro: {
@@ -394,6 +402,7 @@ export const translations = {
     services_tab_hardware: "Tratamente cu Aparatură",
     services_tab_combo: "Pachete Combinate",
     services_book_btn: "Programează o procedură",
+    services_unavailable: "Serviciile sunt temporar indisponibile.",
 
     services_min_short: "min",
     currency: "RON",
@@ -444,7 +453,10 @@ export const translations = {
     name_uk: "Nume (UK)",
     name_ro: "Nume (RO)",
     price: "Preț (RON)",
-    duration_min:"Durată (min)",
+    duration_min: "Durată (min)",
+    status_pending: "În așteptare",
+    status_confirmed: "Confirmat",
+    status_cancelled: "Anulat",
   },
 };
 

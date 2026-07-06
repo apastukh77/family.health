@@ -16,6 +16,8 @@ export default function Booking() {
   const [services, setServices] = useState([]);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  // Состояние для хранения занятых слотов
+  const [bookedSlots, setBookedSlots] = useState([]);
   const today = new Date().toISOString().split("T")[0];
 
   const [form, setForm] = useState({
@@ -31,6 +33,17 @@ export default function Booking() {
       }
     }).catch(() => {});
   }, [params]);
+
+  // Загрузка занятых слотов при выборе даты
+  useEffect(() => {
+    if (form.date) {
+      api.get(`/bookings/slots?date=${form.date}`).then((r) => {
+        setBookedSlots(r.data);
+      }).catch(() => {
+        setBookedSlots([]);
+      });
+    }
+  }, [form.date]);
 
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
 
@@ -61,7 +74,6 @@ export default function Booking() {
   return (
     <PublicLayout>
       <section className="relative max-w-3xl mx-auto px-6 sm:px-10 py-16 sm:py-24">
-        {/* Кнопка Назад приведена к общему круглому стилю */}
         {!submitted && (
           <button 
             onClick={() => navigate(-1)} 
@@ -110,7 +122,7 @@ export default function Booking() {
               <select data-testid="booking-service" className={inputCls} value={form.service_id} onChange={(e) => set("service_id", e.target.value)} required>
                 <option value="">—</option>
                  {services.map((s) => {
-                  const label = `${serviceName(s, lang)} · €${s.price}`;
+                  const label = `${serviceName(s, lang)} · ${s.price} ${t("currency")}`;
                   return (
                     <option key={s.id} value={s.id}>{label}</option>
                   );
@@ -126,21 +138,27 @@ export default function Booking() {
               <div>
                 <label className="block text-sm font-semibold text-[#5C6656] mb-2">{t("form_time")}</label>
                 <div className="grid grid-cols-4 gap-2">
-                  {TIME_SLOTS.map((slot) => (
-                    <button
-                      type="button"
-                      key={slot}
-                      data-testid={`time-slot-${slot}`}
-                      onClick={() => set("time", slot)}
-                      className={`rounded-lg py-2 text-sm font-medium transition-colors border ${
-                        form.time === slot
-                          ? "bg-[#4A5D4E] text-white border-[#4A5D4E]"
-                          : "bg-white/60 text-[#5C6656] border-[#E2DACD] hover:border-[#4A5D4E]"
-                      }`}
-                    >
-                      {slot}
-                    </button>
-                  ))}
+                  {TIME_SLOTS.map((slot) => {
+                    const isBooked = bookedSlots.includes(slot);
+                    return (
+                      <button
+                        type="button"
+                        key={slot}
+                        data-testid={`time-slot-${slot}`}
+                        disabled={isBooked}
+                        onClick={() => set("time", slot)}
+                        className={`rounded-lg py-2 text-sm font-medium transition-colors border ${
+                          form.time === slot
+                            ? "bg-[#4A5D4E] text-white border-[#4A5D4E]"
+                            : isBooked 
+                              ? "bg-gray-200 text-gray-400 border-gray-300 cursor-not-allowed"
+                              : "bg-white/60 text-[#5C6656] border-[#E2DACD] hover:border-[#4A5D4E]"
+                        }`}
+                      >
+                        {slot}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             </div>

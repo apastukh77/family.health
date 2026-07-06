@@ -298,7 +298,7 @@ export default function Services() {
                             }
                             return <span key={i}>{part}</span>;
                           })}{" "}
-                          {t("currency")}
+                          <span className="text-lg ml-1">{t("currency")}</span>
                         </span>
                       </div>
                     </div>
