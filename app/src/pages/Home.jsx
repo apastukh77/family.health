@@ -17,6 +17,20 @@ export default function Home() {
   const { t } = useLang();
   const [services, setServices] = useState([]);
 
+  const partners = [
+    { 
+      name: "Pastukh Studio", 
+      logo: "/assets/partners/pastukh-studio-og-image.webp", 
+      url: "https://pastukh-studio.vercel.app/" 
+    },
+    // { 
+    //   name: "Partner 2", 
+    //   logo: "/assets/partners/logo2.webp", 
+    //   url: "https://ссылка-на-второго-партнера.com" 
+    // },
+   
+  ];
+  
   useEffect(() => {
     api
       .get("/services")
@@ -164,6 +178,32 @@ export default function Home() {
             </Link>
           </div>
         </motion.div>
+      </section>
+
+      {/* PARTNERS */}
+      <section className="py-20 border-t border-[#E2DACD]">
+        <div className="max-w-7xl mx-auto px-6 sm:px-10 text-center">
+          <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-[#C17767] mb-12">
+            {t("partners_title")}
+          </h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-12 items-center">
+            {partners.map((p, i) => (
+              <a 
+                key={i} 
+                href={p.url}
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="flex justify-center transition-transform hover:scale-110"
+              >
+                <img 
+                  src={p.logo} 
+                  alt={p.name} 
+                  className="h-20 w-auto object-contain" 
+                />
+              </a>
+            ))}
+          </div>
+        </div>
       </section>
 
       {/* WHY */}

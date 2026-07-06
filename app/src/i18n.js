@@ -175,7 +175,7 @@ export const translations = {
     hero_secondary: "Переглянути послуги",
 
     marquee:
-      "Спокій • Відновлення • Оновлення • Дихання • Зцілення • Турбота про родину",
+      "Відпочинок • Омолодження • Відновлення • Дихання • Зцілення • Турбота про сім’ю • Спокій • Баланс • Добробут • Догляд • Оновлення • Ніжний дотик • Глибоке полегшення • Тривалий комфорт",
 
     services_title: "Наші фірмові процедури",
     services_sub:
@@ -334,7 +334,7 @@ export const translations = {
     hero_secondary: "Explorează serviciile",
 
     marquee:
-      "Relaxare • Revigorare • Refacere • Respiră • Vindecă • Grija familiei",
+        "Relaxare • Reîntinerire • Restabilire • Respirație • Vindecare • Îngrijire de familie • Calme • Echilibru • Bunăstare • Îngrijire • Reînnoire • Atingere blândă • Alinare profundă • Confort de durată",
 
     services_title: "Tratamentele noastre semnătură",
     services_sub:
