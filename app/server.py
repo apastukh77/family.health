@@ -87,6 +87,12 @@ class PasswordChangeSchema(BaseModel):
     old_password: str
     new_password: str
 
+class CreateUserSchema(BaseModel):
+    email: EmailStr
+    password: str
+    name: str = "Staff"
+    role: str = "admin"
+
 class Service(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     name_en: str
@@ -160,6 +166,26 @@ async def change_password(data: PasswordChangeSchema, current_user: dict = Depen
         raise HTTPException(status_code=400, detail="Incorrect current password")
     await db.users.update_one({"id": current_user["id"]}, {"$set": {"password_hash": hash_password(data.new_password)}})
     return {"ok": True}
+
+@api_router.post("/auth/create-user")
+async def create_user(data: CreateUserSchema, current_user: dict = Depends(get_current_user)):
+    if current_user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Only admins can create users")
+    
+    existing = await db.users.find_one({"email": data.email.lower()})
+    if existing:
+        raise HTTPException(status_code=400, detail="User already exists")
+    
+    new_user = {
+        "id": str(uuid.uuid4()),
+        "email": data.email.lower(),
+        "password_hash": hash_password(data.password),
+        "name": data.name,
+        "role": data.role,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    }
+    await db.users.insert_one(new_user)
+    return {"ok": True, "user_id": new_user["id"]}
 
 @api_router.get("/auth/me")
 async def me(current_user: dict = Depends(get_current_user)):
@@ -312,7 +338,7 @@ DEFAULT_SERVICES = [
     {"name_en": "Kinesiotaping", "name_uk": "Кінезіотейпування", "name_ro": "Kinesiotaping",
      "description_en": "Therapeutic taping technique that supports muscles and joints, reduces pain, and accelerates recovery without restricting movement.",
      "description_uk": "Терапевтична техніка тейпування, яка підтримує м'язи та суглоби, зменшує біль і прискорює відновлення, не обмежуючи рухів.",
-     "description_ro": "Tehnică terapeutică de taping care susține mușchii și articulațiile, reduce durerea și accelerează recuperarea fără a restricționa mișcarea.",
+     "description_ro": "Tehnică terapeutică de taping care susține mușchii și articulațiile, reduce durerea și accelerează recuperarea fără a restricționa miçcarea.",
      "duration": "30-45", "price": "100-150", "category": "therapy", "image_url": "/videos/Kinesiotaping.mp4"},
     {"name_en": "Face massage + back massage", "name_uk": "Масаж обличчя + масаж спини", "name_ro": "Masaj facial + masaj de spate",
      "description_en": "A harmonious combination of facial and back massage that provides complete relaxation and visible rejuvenation of the whole body.",
@@ -327,7 +353,7 @@ DEFAULT_SERVICES = [
     {"name_en": "Pressotherapy + face massage", "name_uk": "Пресотерапія + масаж обличчя", "name_ro": "Presoterapie + masaj facial",
      "description_en": "A wonderful combination of lymphatic drainage and facial massage that helps remove toxins and restore a fresh, radiant appearance.",
      "description_uk": "Чудове поєднання лімфодренажу та масажу обличчя, яке допомагає вивести токсини та повернути свіжий, сяючий вигляд.",
-     "description_ro": "O combinație minunată de drenaj limfatic și masaj facial care ajută la eliminerea toxinelor și redă un aspect proaspăt și radiant.",
+     "description_ro": "O combinație minunată de drenaj limfatic și masaj facial care ajută la eliminarea toxinelor și redă un aspect proaspăt și radiant.",
      "duration": "60", "price": "280", "category": "wellness", "image_url": "/videos/Pressotherapy_+_face_massage.mp4"},
 ]
 

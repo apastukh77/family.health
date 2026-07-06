@@ -33,3 +33,15 @@ http://localhost:8000/docs  интерактивная документация 
 npm start
 
 
+
+-------------------
+
+
+Вход в админ панель : 
+
+юзер 1 andriy.pastukh77@gmail.com  Holodova47
+юзер 2 pastukh180587@gmail.com  5896
+
+
+
+

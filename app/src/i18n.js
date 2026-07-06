@@ -151,6 +151,12 @@ export const translations = {
     status_pending: "Pending",
     status_confirmed: "Confirmed",
     status_cancelled: "Cancelled",
+
+    add_user: "Add User",
+    admin_cancel: "Cancel",
+    admin_change_password: "Change Password",
+    old_password: "Old Password",
+    new_password: "New Password",
   },
   uk: {
     brand: "Family Health",
@@ -303,6 +309,12 @@ export const translations = {
     status_pending: "В очікуванні",
     status_confirmed: "Підтверджено",
     status_cancelled: "Скасовано",
+
+    add_user: "Додати користувача",
+    admin_cancel: "Скасувати",
+    admin_change_password: "Змінити пароль",
+    old_password: "Старий пароль",
+    new_password: "Новий пароль",
   },
 
   ro: {
@@ -457,6 +469,12 @@ export const translations = {
     status_pending: "În așteptare",
     status_confirmed: "Confirmat",
     status_cancelled: "Anulat",
+
+    add_user: "Adaugă utilizator",
+    admin_cancel: "Anulează",
+    admin_change_password: "Schimbă parola",
+    old_password: "Parola veche",
+    new_password: "Parola nouă",
   },
 };
 
