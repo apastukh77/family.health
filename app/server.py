@@ -15,6 +15,13 @@ from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 from pydantic import BaseModel, Field, EmailStr
 
+# Настройка логирования
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
@@ -24,7 +31,7 @@ app = FastAPI()
 Path("public/pictures").mkdir(parents=True, exist_ok=True)
 Path("public/videos").mkdir(parents=True, exist_ok=True)
 
-# Монтируем статику (один раз!)
+# Монтируем статику
 app.mount("/pictures", StaticFiles(directory="public/pictures"), name="pictures")
 app.mount("/videos", StaticFiles(directory="public/videos"), name="videos")
 
@@ -36,7 +43,6 @@ db = client[os.environ['DB_NAME']]
 JWT_ALGORITHM = "HS256"
 
 api_router = APIRouter(prefix="/api")
-logger = logging.getLogger(__name__)
 
 # ---------- Auth helpers ----------
 def hash_password(password: str) -> str:
@@ -150,7 +156,9 @@ class BookingStatusInput(BaseModel):
 @api_router.post("/auth/login")
 async def login(data: LoginInput):
     email = data.email.lower()
+    logger.info(f"LOGIN: Attempting login for {email}")
     user = await db.users.find_one({"email": email})
+    logger.info(f"LOGIN: User found: {user is not None}")
     if not user or not verify_password(data.password, user["password_hash"]):
         raise HTTPException(status_code=401, detail="Invalid email or password")
     token = create_access_token(user["id"], email)
@@ -282,8 +290,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-
 DEFAULT_SERVICES = [
     {"name_en": "Therapeutic back massage", "name_uk": "Терапевтичний масаж спини", "name_ro": "Masaj terapeutic al spatelui",
      "description_en": "A targeted therapeutic massage that relieves muscle tension, improves posture, and releases deep-seated stress in the back and shoulders.",
@@ -311,9 +317,9 @@ DEFAULT_SERVICES = [
      "description_ro": "O terapie relaxantă de compresie care îmbunătățește circulația sanguină, reduce retenția de lichide și oferă o senzație de ușurință în picioare și corp.",
      "duration": "60", "price": "150-170", "category": "wellness", "image_url": "/videos/Pressotherapy.mp4"},
     {"name_en": "Myostimulation", "name_uk": "Міостимуляція", "name_ro": "Miostimulare",
-     "description_en": "A nurturing session designed for restoring family wellbeing. Electrical muscle stimulation helps tone muscles, improve metabolism, and accelerate recovery.",
-     "description_uk": "Дбалий сеанс, створений для відновлення сімейного благополуччя. Електростимуляція м’язів допомагає підтягнути їх, покращити метаболізм та прискорити відновлення.",
-     "description_ro": "O sesiune de îngrijire concepută pentru restabilirea bunăstării familiale. Stimularea electrică a mușchilor ajută la tonifiere, îmbunătățirea metabolismului și accelerarea recuperării.",
+     "description_en": "Electrical muscle stimulation helps tone muscles, improve metabolism, and accelerate recovery.",
+     "description_uk": "Електростимуляція м’язів допомагає підтягнути їх, покращити метаболізм та прискорити відновлення.",
+     "description_ro": "Stimularea electrică a mușchilor ajută la tonifiere, îmbunătățirea metabolismului și accelerarea recuperării.",
      "duration": "30", "price": "150", "category": "wellness", "image_url": "/videos/Myostimulation.mp4"},
     {"name_en": "RF lifting (body, face)", "name_uk": "RF-ліфтинг (тіло, обличчя)", "name_ro": "Lifting RF (corp, față)",
      "description_en": "Advanced radiofrequency treatment that tightens skin, stimulates collagen production, and provides visible lifting and rejuvenation effects.",
@@ -338,7 +344,7 @@ DEFAULT_SERVICES = [
     {"name_en": "Kinesiotaping", "name_uk": "Кінезіотейпування", "name_ro": "Kinesiotaping",
      "description_en": "Therapeutic taping technique that supports muscles and joints, reduces pain, and accelerates recovery without restricting movement.",
      "description_uk": "Терапевтична техніка тейпування, яка підтримує м'язи та суглоби, зменшує біль і прискорює відновлення, не обмежуючи рухів.",
-     "description_ro": "Tehnică terapeutică de taping care susține mușchii și articulațiile, reduce durerea și accelerează recuperarea fără a restricționa miçcarea.",
+     "description_ro": "Tehnică terapeutică de taping care susține mușchii și articulațiile, reduce durerea și accelerează recuperarea fără a restricționa mișcarea.",
      "duration": "30-45", "price": "100-150", "category": "therapy", "image_url": "/videos/Kinesiotaping.mp4"},
     {"name_en": "Face massage + back massage", "name_uk": "Масаж обличчя + масаж спини", "name_ro": "Masaj facial + masaj de spate",
      "description_en": "A harmonious combination of facial and back massage that provides complete relaxation and visible rejuvenation of the whole body.",
@@ -346,14 +352,14 @@ DEFAULT_SERVICES = [
      "description_ro": "O combinație armonioasă de masaj facial și de spate care oferă relaxare completă și rejuvenare vizibilă a întregului corp.",
      "duration": "100", "price": "280", "category": "wellness", "image_url": "/videos/Face_massage_+_back_massage.mp4"},
     {"name_en": "General massage + face massage", "name_uk": "Загальний масаж + масаж обличчя", "name_ro": "Masaj general + masaj facial",
-     "description_en": "Complete relaxation for body and face in one session. Perfect way to restore energy and achieve inner harmony.",
-     "description_uk": "Повне розслаблення тіла та обличчя в одном сеансі. Ідеальний спосіб відновити енергію та знайти внутрішню гармонію.",
-     "description_ro": "Relaxare completă a corpului și feței într-o singură sesiune. Modalitatea perfectă de a restabili energia și a obține armonie interioară.",
+     "description_en": "Complete relaxation for body and face in one session.",
+     "description_uk": "Повне розслаблення тіла та обличчя в одному сеансі.",
+     "description_ro": "Relaxare completă a corpului și feței într-o singură sesiune.",
      "duration": "120", "price": "300", "category": "wellness", "image_url": "/videos/General_massage_+_face_massage.mp4"},
     {"name_en": "Pressotherapy + face massage", "name_uk": "Пресотерапія + масаж обличчя", "name_ro": "Presoterapie + masaj facial",
      "description_en": "A wonderful combination of lymphatic drainage and facial massage that helps remove toxins and restore a fresh, radiant appearance.",
      "description_uk": "Чудове поєднання лімфодренажу та масажу обличчя, яке допомагає вивести токсини та повернути свіжий, сяючий вигляд.",
-     "description_ro": "O combinație minunată de drenaj limfatic și masaj facial care ajută la eliminarea toxinelor și redă un aspect proaspăt și radiant.",
+     "description_ro": "O combinație minunată de drenaj limfatic și masaj facial care ajută la eliminвання toxinelor și redă un aspect proaspăt și radiant.",
      "duration": "60", "price": "280", "category": "wellness", "image_url": "/videos/Pressotherapy_+_face_massage.mp4"},
 ]
 
@@ -361,8 +367,14 @@ DEFAULT_SERVICES = [
 async def startup():
     admin_email = os.environ.get("ADMIN_EMAIL", "admin@familyhealth.com").lower()
     admin_password = os.environ.get("ADMIN_PASSWORD", "admin123")
+    
+    logger.info(f"STARTUP: Проверяем админа {admin_email}")
+    
     await db.users.create_index("email", unique=True)
     existing = await db.users.find_one({"email": admin_email})
+    
+    logger.info(f"STARTUP: Админ найден в базе: {existing is not None}")
+    
     if existing is None:
         await db.users.insert_one({
             "id": str(uuid.uuid4()),
