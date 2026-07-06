@@ -5,7 +5,7 @@ import os
 sys.path.append(os.getcwd())
 
 # Теперь импортируем ваше приложение из папки app
-from app.server import app as application
+from .server import app as application
 
 # Vercel ожидает, что переменная будет называться именно так (или перенаправляем)
 app = application
