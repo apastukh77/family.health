@@ -5,9 +5,12 @@ import logging
 import uuid
 import jwt
 import bcrypt
+import cloudinary
+import cloudinary.uploader
 from datetime import datetime, timezone, timedelta
 from typing import List
 from pathlib import Path
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, APIRouter, HTTPException, Request, Depends, UploadFile, File
 from fastapi.staticfiles import StaticFiles
@@ -25,11 +28,28 @@ logger = logging.getLogger(__name__)
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
-app = FastAPI()
+# Настройка Cloudinary
+cloudinary.config(
+    cloud_name=os.environ.get("CLOUDINARY_CLOUD_NAME"),
+    api_key=os.environ.get("CLOUDINARY_API_KEY"),
+    api_secret=os.environ.get("CLOUDINARY_API_SECRET")
+)
 
-# Создаем папки при старте, если их нет
-Path("public/pictures").mkdir(parents=True, exist_ok=True)
-Path("public/videos").mkdir(parents=True, exist_ok=True)
+# Исправленный запуск (lifespan вместо on_event)
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Код инициализации сервисов при запуске
+    for s in DEFAULT_SERVICES:
+        exists = await db.services.find_one({"name_en": s["name_en"]})
+        if not exists:
+            svc = Service(**s)
+            await db.services.insert_one(svc.model_dump())
+            logger.info(f"Seeded service: {s['name_en']}")
+    yield
+    # Код выключения
+    client.close()
+
+app = FastAPI(lifespan=lifespan)
 
 # Монтируем статику
 app.mount("/pictures", StaticFiles(directory="public/pictures"), name="pictures")
@@ -156,9 +176,7 @@ class BookingStatusInput(BaseModel):
 @api_router.post("/auth/login")
 async def login(data: LoginInput):
     email = data.email.lower()
-    logger.info(f"LOGIN: Attempting login for {email}")
     user = await db.users.find_one({"email": email})
-    logger.info(f"LOGIN: User found: {user is not None}")
     if not user or not verify_password(data.password, user["password_hash"]):
         raise HTTPException(status_code=401, detail="Invalid email or password")
     token = create_access_token(user["id"], email)
@@ -261,16 +279,20 @@ async def delete_booking(booking_id: str, current_user: dict = Depends(get_curre
         raise HTTPException(status_code=404, detail="Booking not found")
     return {"ok": True}
 
+# ---------- Upload route ----------
 @api_router.post("/upload")
 async def upload_file(file: UploadFile = File(...), current_user: dict = Depends(get_current_user)):
-    ext = file.filename.split('.')[-1].lower()
-    folder = "videos" if ext in ["mp4", "mov", "avi", "mkv"] else "pictures"
-    upload_dir = ROOT_DIR / "public" / folder
-    upload_dir.mkdir(parents=True, exist_ok=True)
-    file_path = upload_dir / file.filename
-    with open(file_path, "wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
-    return {"url": f"/{folder}/{file.filename}"}
+    logger.info(f"Uploading file: {file.filename}, content_type: {file.content_type}")
+    try:
+        content = await file.read()
+        logger.info(f"File read, size: {len(content)} bytes")
+        
+        result = cloudinary.uploader.upload(content, folder="family_health", resource_type="auto")
+        logger.info(f"Cloudinary success: {result.get('secure_url')}")
+        return {"url": result.get("secure_url")}
+    except Exception as e:
+        logger.error(f"Upload error details: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 @api_router.get("/stats")
 async def stats(current_user: dict = Depends(get_current_user)):
@@ -319,7 +341,7 @@ DEFAULT_SERVICES = [
     {"name_en": "Myostimulation", "name_uk": "Міостимуляція", "name_ro": "Miostimulare",
      "description_en": "Electrical muscle stimulation helps tone muscles, improve metabolism, and accelerate recovery.",
      "description_uk": "Електростимуляція м’язів допомагає підтягнути їх, покращити метаболізм та прискорити відновлення.",
-     "description_ro": "Stimularea electrică a mușchilor ajută la tonifiere, îmbunătățirea metabolismului și accelerarea recuperării.",
+     "description_ro": "Stimularea electrică a mușchilor ajută la tonifiere, îmbunătățierea metabolismului și accelerarea recuperării.",
      "duration": "30", "price": "150", "category": "wellness", "image_url": "/videos/Myostimulation.mp4"},
     {"name_en": "RF lifting (body, face)", "name_uk": "RF-ліфтинг (тіло, обличчя)", "name_ro": "Lifting RF (corp, față)",
      "description_en": "Advanced radiofrequency treatment that tightens skin, stimulates collagen production, and provides visible lifting and rejuvenation effects.",
@@ -344,7 +366,7 @@ DEFAULT_SERVICES = [
     {"name_en": "Kinesiotaping", "name_uk": "Кінезіотейпування", "name_ro": "Kinesiotaping",
      "description_en": "Therapeutic taping technique that supports muscles and joints, reduces pain, and accelerates recovery without restricting movement.",
      "description_uk": "Терапевтична техніка тейпування, яка підтримує м'язи та суглоби, зменшує біль і прискорює відновлення, не обмежуючи рухів.",
-     "description_ro": "Tehnică terapeutică de taping care susține mușchii și articulațiile, reduce durerea și accelerează recuperarea fără a restricționa mișcarea.",
+     "description_ro": "Tehnică terapeutică de taping care susține mușchii și articulațiile, reduce durerea și accelerează recuperarea fără a restricționa mișcвання.",
      "duration": "30-45", "price": "100-150", "category": "therapy", "image_url": "/videos/Kinesiotaping.mp4"},
     {"name_en": "Face massage + back massage", "name_uk": "Масаж обличчя + масаж спини", "name_ro": "Masaj facial + masaj de spate",
      "description_en": "A harmonious combination of facial and back massage that provides complete relaxation and visible rejuvenation of the whole body.",
@@ -353,7 +375,7 @@ DEFAULT_SERVICES = [
      "duration": "100", "price": "280", "category": "wellness", "image_url": "/videos/Face_massage_+_back_massage.mp4"},
     {"name_en": "General massage + face massage", "name_uk": "Загальний масаж + масаж обличчя", "name_ro": "Masaj general + masaj facial",
      "description_en": "Complete relaxation for body and face in one session.",
-     "description_uk": "Повне розслаблення тіла та обличчя в одному сеансі.",
+     "description_uk": "Повне розслаблення тіла та обличчя в одном сеансі.",
      "description_ro": "Relaxare completă a corpului și feței într-o singură sesiune.",
      "duration": "120", "price": "300", "category": "wellness", "image_url": "/videos/General_massage_+_face_massage.mp4"},
     {"name_en": "Pressotherapy + face massage", "name_uk": "Пресотерапія + масаж обличчя", "name_ro": "Presoterapie + masaj facial",
@@ -362,39 +384,3 @@ DEFAULT_SERVICES = [
      "description_ro": "O combinație minunată de drenaj limfatic și masaj facial care ajută la eliminвання toxinelor și redă un aspect proaspăt și radiant.",
      "duration": "60", "price": "280", "category": "wellness", "image_url": "/videos/Pressotherapy_+_face_massage.mp4"},
 ]
-
-@app.on_event("startup")
-async def startup():
-    admin_email = os.environ.get("ADMIN_EMAIL", "admin@familyhealth.com").lower()
-    admin_password = os.environ.get("ADMIN_PASSWORD", "admin123")
-    
-    logger.info(f"STARTUP: Проверяем админа {admin_email}")
-    
-    await db.users.create_index("email", unique=True)
-    existing = await db.users.find_one({"email": admin_email})
-    
-    logger.info(f"STARTUP: Админ найден в базе: {existing is not None}")
-    
-    if existing is None:
-        await db.users.insert_one({
-            "id": str(uuid.uuid4()),
-            "email": admin_email,
-            "password_hash": hash_password(admin_password),
-            "name": "Admin",
-            "role": "admin",
-            "created_at": datetime.now(timezone.utc).isoformat(),
-        })
-        logger.info("Seeded admin user")
-    elif not verify_password(admin_password, existing["password_hash"]):
-        await db.users.update_one({"email": admin_email}, {"$set": {"password_hash": hash_password(admin_password)}})
-
-    for s in DEFAULT_SERVICES:
-        exists = await db.services.find_one({"name_en": s["name_en"]})
-        if not exists:
-            svc = Service(**s)
-            await db.services.insert_one(svc.model_dump())
-            logger.info(f"Seeded service: {s['name_en']}")
-
-@app.on_event("shutdown")
-async def shutdown_db_client():
-    client.close()

@@ -48,7 +48,7 @@ export default function AdminDashboard() {
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [showUserModal, setShowUserModal] = useState(false);
   const [showPass, setShowPass] = useState(false);
-  const [showNewUserPass, setShowNewUserPass] = useState(false); // Новый стейт для глаза
+  const [showNewUserPass, setShowNewUserPass] = useState(false);
   const [passwords, setPasswords] = useState({ old: "", new: "" });
   const [newUser, setNewUser] = useState({ email: "", password: "" });
 
@@ -84,6 +84,7 @@ export default function AdminDashboard() {
       setEditing({ ...editing, image_url: res.data.url });
       toast.success(t("uploaded"));
     } catch (err) {
+      console.error("Ошибка фронтенда:", err.response?.data);
       toast.error(t("error_upload"));
     }
   };
@@ -277,7 +278,7 @@ export default function AdminDashboard() {
               <input type="text" placeholder={t("price")} className={inputCls} value={editing.price || ""} onChange={(e) => setEditing({ ...editing, price: String(e.target.value) })} />
             </div>
             <div className="mt-4">
-              <label className="block text-sm text-[#5C6656] mb-1">Изображение/Видео</label>
+              <label className="block text-sm text-[#5C6656] mb-1">{t("upload_label")}</label>
               <input type="file" onChange={handleFileUpload} className="w-full text-sm text-[#5C6656] file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:bg-[#E2DACD] hover:file:bg-[#D4CDBE]" />
               {editing.image_url && (
                 <div className="mt-3 p-2 bg-[#E7E0D3] rounded-xl overflow-hidden flex justify-center">
@@ -296,10 +297,15 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {showUserModal && (
+     {showUserModal && (
         <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
           <div className="bg-[#FAF8F5] rounded-3xl w-full max-w-sm p-7">
-            <h3 className="font-serif text-xl mb-4">{t("add_user")}</h3>
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="font-serif text-xl">{t("add_user")}</h3>
+              <button onClick={() => setShowUserModal(false)} className="text-[#5C6656] hover:text-black">
+                <X size={22} />
+              </button>
+            </div>
             <input placeholder="Email" className={`${inputCls} mb-3`} onChange={(e) => setNewUser({...newUser, email: e.target.value})} />
             <div className="relative mb-4">
               <input type={showNewUserPass ? "text" : "password"} placeholder={t("password")} className={inputCls} onChange={(e) => setNewUser({...newUser, password: e.target.value})} />
@@ -318,7 +324,12 @@ export default function AdminDashboard() {
       {showPasswordModal && (
         <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
           <div className="bg-[#FAF8F5] rounded-3xl w-full max-w-sm p-7">
-            <h3 className="font-serif text-xl mb-4">{t("admin_change_password")}</h3>
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="font-serif text-xl">{t("admin_change_password")}</h3>
+              <button onClick={() => setShowPasswordModal(false)} className="text-[#5C6656] hover:text-black">
+                <X size={22} />
+              </button>
+            </div>
             <div className="relative mb-3">
               <input type={showPass ? "text" : "password"} placeholder={t("old_password")} className={inputCls} onChange={(e) => setPasswords({ ...passwords, old: e.target.value })} />
               <button type="button" onClick={() => setShowPass(!showPass)} className="absolute right-3 top-2.5 text-[#5C6656] hover:text-[#2C3D30]">

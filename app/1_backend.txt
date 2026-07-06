@@ -44,4 +44,25 @@ npm start
 
 
 
+-------------------------
+Хранение видео и фото
+
+Cloudinary
+
+https://console.cloudinary.com/
+
+Cloud Name: slcgcsga
+
+API Key: 554122346894678
+
+API Secret: k0-YVncIiNFfqFX3Iywx55a35OI
+
+
+CLOUDINARY_CLOUD_NAME=slcgcsga
+CLOUDINARY_API_KEY=554122346894678
+CLOUDINARY_API_SECRET=k0-YVncIiNFfqFX3Iywx55a35OI
+
+------------------------------------
+
+
 
