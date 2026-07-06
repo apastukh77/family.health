@@ -9,6 +9,7 @@ export const translations = {
     nav_contact: "Contact",
     nav_book: "Book Now",
     call_us: "Call Us",
+    partners_title:"Trusted Partners",
 
     hero_eyebrow: "Massage & Wellness Studio",
     hero_title: "Healing hands for the whole family",
@@ -166,6 +167,7 @@ export const translations = {
     nav_contact: "Контакти",
     nav_book: "Записатися",
     call_us: "Зателефонувати",
+    partners_title:"Партнери, яким ми довіряємо",
 
     hero_eyebrow: "Студія масажу та оздоровлення",
     hero_title: "Зцілюючі руки для всей родини",
@@ -325,6 +327,7 @@ export const translations = {
     nav_contact: "Contact",
     nav_book: "Programează-te",
     call_us: "Sună-ne",
+    partners_title:"Parteneri de încredere",
 
     hero_eyebrow: "Studio de masaj și wellness",
     hero_title: "Mâini vindecătoare pentru toată familia",

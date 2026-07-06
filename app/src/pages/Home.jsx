@@ -183,9 +183,9 @@ export default function Home() {
       {/* PARTNERS */}
       <section className="py-20 border-t border-[#E2DACD]">
         <div className="max-w-7xl mx-auto px-6 sm:px-10 text-center">
-          <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-[#C17767] mb-12">
+          <h2 className="font-serif text-4xl sm:text-5xl font-medium text-[#2C3D30] tracking-tight mb-16">
             {t("partners_title")}
-          </h3>
+          </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-12 items-center">
             {partners.map((p, i) => (
               <a 
