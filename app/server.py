@@ -52,8 +52,8 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 
 # Монтируем статику
-app.mount("/pictures", StaticFiles(directory="public/pictures"), name="pictures")
-app.mount("/videos", StaticFiles(directory="public/videos"), name="videos")
+# app.mount("/pictures", StaticFiles(directory="public/pictures"), name="pictures")
+# app.mount("/videos", StaticFiles(directory="public/videos"), name="videos")
 
 # MongoDB connection
 mongo_url = os.environ['MONGO_URL']
