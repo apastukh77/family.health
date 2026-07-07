@@ -18,19 +18,18 @@ export default function Home() {
   const [services, setServices] = useState([]);
 
   const partners = [
-    { 
-      name: "Pastukh Studio", 
-      logo: "/assets/partners/pastukh-studio-og-image.webp", 
-      url: "https://pastukh-studio.vercel.app/" 
+    {
+      name: "Pastukh Studio",
+      logo: "/assets/partners/pastukh-studio-og-image.webp",
+      url:    "https://pastukh-studio.vercel.app/",
     },
-    // { 
-    //   name: "Partner 2", 
-    //   logo: "/assets/partners/logo2.webp", 
-    //   url: "https://ссылка-на-второго-партнера.com" 
+    // {
+    //   name: "Partner 2",
+    //   logo: "/assets/partners/logo2.webp",
+    //   url: "https://ссылка-на-второго-партнера.com"
     // },
-   
   ];
-  
+
   useEffect(() => {
     api
       .get("/services")
@@ -186,21 +185,25 @@ export default function Home() {
           <h2 className="font-serif text-4xl sm:text-5xl font-medium text-[#2C3D30] tracking-tight mb-16">
             {t("partners_title")}
           </h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-12 items-center">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {partners.map((p, i) => (
-              <a 
-                key={i} 
-                href={p.url}
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="flex justify-center transition-transform hover:scale-110"
+              <div
+                key={i}
+                className="flex items-center justify-center p-6 bg-white/10 rounded-2xl min-h-[160px] transition-all hover:scale-105 hover:shadow-lg"
               >
-                <img 
-                  src={p.logo} 
-                  alt={p.name} 
-                  className="h-20 w-auto object-contain" 
-                />
-              </a>
+                <a
+                  href={p.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full"
+                >
+                  <img
+                    src={p.logo}
+                    alt={p.name}
+                    className="w-[320px] h-auto object-contain mx-auto"
+                  />
+                </a>
+              </div>
             ))}
           </div>
         </div>
