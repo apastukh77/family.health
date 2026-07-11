@@ -20,8 +20,8 @@ export default function Home() {
   const partners = [
     {
       name: "Pastukh Studio",
-      logo: "/assets/partners/pastukh-studio-og-image.webp",
-      url:    "https://pastukh-studio.vercel.app/",
+      logo: "/assets/partners/pastukh-studio-og-image.png",
+      url: "https://pastukh-studio.vercel.app/",
     },
     // {
     //   name: "Partner 2",
@@ -185,25 +185,46 @@ export default function Home() {
           <h2 className="font-serif text-4xl sm:text-5xl font-medium text-[#2C3D30] tracking-tight mb-16">
             {t("partners_title")}
           </h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+          <div className="flex flex-wrap justify-center gap-6 md:gap-8">
             {partners.map((p, i) => (
-              <div
+              <a
                 key={i}
-                className="flex items-center justify-center p-6 bg-white/10 rounded-2xl min-h-[160px] transition-all hover:scale-105 hover:shadow-lg"
+                href={p.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`Visit ${p.name} website`}
+                title={p.name}
+                className="block w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
               >
-                <a
-                  href={p.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full"
+                <div
+                  className="
+              group
+              w-full
+              rounded-2xl
+              border border-[#E2DACD]
+              bg-white
+              p-4 sm:p-6 md:p-8
+              flex items-center justify-center
+              shadow-sm
+              transition-all duration-300
+              cursor-pointer
+              aspect-[4/3]
+            "
                 >
                   <img
                     src={p.logo}
                     alt={p.name}
-                    className="w-[320px] h-auto object-contain mx-auto"
+                    className="
+                w-full
+                h-full
+                object-contain
+                transition-transform
+                duration-300
+                group-hover:scale-105
+              "
                   />
-                </a>
-              </div>
+                </div>
+              </a>
             ))}
           </div>
         </div>
