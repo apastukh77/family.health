@@ -12,4 +12,4 @@ export const INSTAGRAM_DIRECT_URL = "https://www.instagram.com/family_health_buc
 export const WHATSAPP_URL = "https://wa.me/40758436838";
 export const FACEBOOK_URL = "https://www.facebook.com/profile.php?id=100064173510964";
 
-export const EMAIL_ADDRESS = "info@familyhealth.com";
+export const EMAIL_ADDRESS = "pastukh180587@gmail.com";

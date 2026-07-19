@@ -8,6 +8,8 @@ import { useLang, serviceName } from "../i18n";
 import { api } from "../lib/api";
 
 const TIME_SLOTS = ["09:00", "10:00", "11:00", "12:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00"];
+const botToken = process.env.REACT_APP_TELEGRAM_BOT_TOKEN;
+const chatId = process.env.REACT_APP_TELEGRAM_CHAT_ID;
 
 export default function Booking() {
   const { t, lang } = useLang();
@@ -16,7 +18,6 @@ export default function Booking() {
   const [services, setServices] = useState([]);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
-  // Состояние для хранения занятых слотов
   const [bookedSlots, setBookedSlots] = useState([]);
   const today = new Date().toISOString().split("T")[0];
 
@@ -34,7 +35,6 @@ export default function Booking() {
     }).catch(() => {});
   }, [params]);
 
-  // Загрузка занятых слотов при выборе даты
   useEffect(() => {
     if (form.date) {
       api.get(`/bookings/slots?date=${form.date}`).then((r) => {
@@ -55,11 +55,66 @@ export default function Booking() {
     }
     setLoading(true);
     const svc = services.find((s) => s.id === form.service_id);
+    
     try {
       await api.post("/bookings", {
         ...form,
         service_name: svc ? svc.name_en : "",
       });
+      
+      // Отправка Email через FormSubmit 
+      try {
+        const emailData = new FormData();
+        emailData.append("_subject", `📅 New booking — ${form.name}`);
+        emailData.append("name", `👤 ${form.name}`);
+        emailData.append("phone", `📞 ${form.phone}`);
+        emailData.append("email", `✉️ ${form.email || "-"}`);
+        emailData.append("service", `💆 ${svc ? serviceName(svc, lang) : "-"}`);
+        emailData.append("date", `📅 ${form.date}`);
+        emailData.append("time", `🕒 ${form.time}`);
+        emailData.append("notes", `📝 ${form.notes || "-"}`);
+        emailData.append("_captcha", "false");
+
+        await fetch("https://formsubmit.co/ajax/pastukh180587@gmail.com", {
+                 //await fetch("https://formsubmit.co/ajax/andriy.pastukh77@gmail.com", {
+          method: "POST",
+          body: emailData,
+        });
+      } catch (emailError) {
+        console.error("Email sending failed:", emailError);
+      }
+
+      // Отправка Telegram сообщения 
+      if (botToken && chatId) {
+        try {
+          const telegramMessage = `
+📅 *Новая запись*
+
+👤 *Имя:* ${form.name}
+📞 *Телефон:* ${form.phone}
+✉️ *Email:* ${form.email || "-"}
+💆 *Услуга:* ${svc ? serviceName(svc, lang) : "-"}
+📅 *Дата:* ${form.date}
+🕒 *Время:* ${form.time}
+📝 *Комментарий:* ${form.notes || "-"}
+`.trim();
+
+          await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              chat_id: chatId,
+              text: telegramMessage,
+              parse_mode: "Markdown",
+            }),
+          });
+        } catch (telegramError) {
+          console.error("Telegram sending failed:", telegramError);
+        }
+      }
+
       setSubmitted(true);
       toast.success(t("form_success"));
     } catch {
@@ -121,7 +176,7 @@ export default function Booking() {
               <label className="block text-sm font-semibold text-[#5C6656] mb-2">{t("form_service")}</label>
               <select data-testid="booking-service" className={inputCls} value={form.service_id} onChange={(e) => set("service_id", e.target.value)} required>
                 <option value="">—</option>
-                 {services.map((s) => {
+                {services.map((s) => {
                   const label = `${serviceName(s, lang)} · ${s.price} ${t("currency")}`;
                   return (
                     <option key={s.id} value={s.id}>{label}</option>

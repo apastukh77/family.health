@@ -125,7 +125,7 @@ export default function Services() {
     const botToken = process.env.REACT_APP_TELEGRAM_BOT_TOKEN;
     const chatId = process.env.REACT_APP_TELEGRAM_CHAT_ID;
 
-    // 1. Формируем данные для почты 
+    // 1. Формируем данные для почты
     const emailData = new FormData();
     emailData.append(
       "_subject",
